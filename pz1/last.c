@@ -5,48 +5,88 @@
 #define MAX 1024
 
 int main(int argc, char *argv[]){
-	if(argc != 3){
-		fprintf(stderr, "Usage: %s <filename> <number of lines>\n", argv[0]);
-		return 1;
-	}
+    int n = 10;
+    int reverse_flag = 0;
+    char *filename = NULL;
 
-	FILE *fp = fopen(argv[1], "r");
-	if(!fp){
-		perror("File opening failed!\n");
-		return 1;
-	}
+    for(int i = 1; i < argc; i++){
+        if(strcmp(argv[i], "-n") == 0){
+            if(i + 1 < argc){
+                n = atoi(argv[i+1]);
+                i++;
+            }
+        } else if(strcmp(argv[i], "-r") == 0){
+            reverse_flag = 1;
+        } else {
+            filename = argv[i];
+        }
+    }
 
-	int n = atoi(argv[2]);
-	if(n < 0){
-		perror("An invalid number!\n");
-	}
+    if(n <= 0){
+    	fprintf(stderr, "Не правильне число рядків!\n");
+        return 1;
+    }
 
-	int capacity = 10;
-	int count = 0;
-	char **lines = malloc(capacity * sizeof(char*));
+    FILE *fp;
+    if(filename){
+        fp = fopen(filename, "r");
+        if(!fp){
+            fprintf(stderr, "Помилка відкриття файлу!\n");
+            return 1;
+        }
+    } else {
+        fp = stdin;
+    }
 
-	char buffer[MAX];
+    char **lines = malloc(n * sizeof(char*));
+    if(!lines){
+        fprintf(stderr, "Помилка виділення пам'яті!\n");
+        if(filename) fclose(fp);
+        return 1;
+    }
 
-	while(fgets(buffer, MAX, fp)){
-		if(count >= capacity){
-			capacity *= 2;
-			lines = realloc(lines, capacity * sizeof(char*));
-			if(!lines){
-				fprintf(stderr, "Memory allocation failed!\n");
-				return 1;
-			}
-		}
-		lines[count] = malloc(strlen(buffer) + 1);
-		strcpy(lines[count], buffer);
-		count++;
-	}
+    for(int i = 0; i < n; i++){
+        lines[i] = NULL;
+    }
 
-	for(int i = count - 1; i >= count - n; i--){
-		printf("%s", lines[i]);
-		free(lines[i]);
-	}
+    char buffer[MAX];
+    int current = 0;
+    int total_read = 0;
 
-	free(lines);
-	fclose(fp);
-	return 0;
+    while(fgets(buffer, MAX, fp)){
+        if(lines[current]){
+            free(lines[current]);
+        }
+        
+        lines[current] = malloc(strlen(buffer) + 1);
+        strcpy(lines[current], buffer);
+
+        current++;
+        if(current >= n) current = 0; 
+        total_read++;
+    }
+
+    int count = (total_read < n) ? total_read : n;
+    int start = (total_read < n) ? 0 : current;
+
+    if(reverse_flag){
+        for(int i = 0; i < count; i++){
+            int idx = (start + count - 1 - i) % n;
+            if(lines[idx]) printf("%s", lines[idx]);
+        }
+    } else {
+        for(int i = 0; i < count; i++){
+            int idx = (start + i) % n;
+            if(lines[idx]) printf("%s", lines[idx]);
+        }
+    }
+
+    for(int i = 0; i < n; i++){
+        if(lines[i]) free(lines[i]); 
+    }
+
+    free(lines);
+    if(filename) fclose(fp);
+    
+    return 0;
 }

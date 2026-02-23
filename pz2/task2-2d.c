@@ -6,6 +6,7 @@ void func(){
 }
 
 int main(){
+    printf("Hello, world!\n");
     func();	
 	return 0;
 }

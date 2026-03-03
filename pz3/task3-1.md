@@ -54,5 +54,31 @@ open files                          (-n) 3000
 andrew3378o@DESKTOP-N1R2BIO:~$ ulimit -n 3001
 -bash: ulimit: open files: cannot modify limit: Operation not permitted
 ```
-Як можна помітити, після того як ми знизили hard limit до 3000 за допомогою команди (4), стає неможливим збільшити цей ліміт без прав доступу адміністратора. Схожими будуть всі інші операції після зниження ліміту до 2000. 
+Як можна помітити, після того як ми знизили hard limit до 3000 за допомогою команди (4), стає неможливим збільшити цей ліміт без прав доступу адміністратора. Схожими будуть всі інші операції після зниження ліміту до 2000. Для переходу в режим адміністратора виконаємо команду `sudo bash`, після чого виконання всіх команд можна побачити наступний приклад виводу:
+```
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -n
+1024
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aS | grep "open files"
+open files                          (-n) 1024
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aH | grep "open files"
+open files                          (-n) 1048576
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -n 3000
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aS | grep "open files"
+open files                          (-n) 3000
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aH | grep "open files"
+open files                          (-n) 3000
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -n 3001
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aS | grep "open files"
+open files                          (-n) 3001
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aH | grep "open files"
+open files                          (-n) 3001
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -n 2000
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -n
+2000
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aS | grep "open files"
+open files                          (-n) 2000
+root@DESKTOP-N1R2BIO:/home/andrew3378o# ulimit -aH | grep "open files"
+open files                          (-n) 2000
+```
+Тобто в режимі доступу з правами адміністратора з'являється можливість змінювати soft і hard limits як у сторону збільшення, так і у сторону зменшення.
 

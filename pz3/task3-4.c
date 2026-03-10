@@ -48,6 +48,6 @@ int main(){
 	printf("6 values from 1 to 36\n");
 	generate(6, 36);
 
-	//while(1);
+	while(1);
 	return 0;
 }
